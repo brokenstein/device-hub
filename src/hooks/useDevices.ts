@@ -82,6 +82,56 @@ export const useAddDevice = () => {
   });
 };
 
+export const useUpdateDevice = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      deviceId,
+      device,
+      softwareVersions,
+    }: {
+      deviceId: string;
+      device: { name: string; model: string; os: string; image_url?: string };
+      softwareVersions: { id?: string; name: string; version: string }[];
+    }) => {
+      // Update device info
+      const { error: deviceError } = await supabase
+        .from("devices")
+        .update(device)
+        .eq("id", deviceId);
+
+      if (deviceError) throw deviceError;
+
+      // Delete existing software versions
+      const { error: deleteError } = await supabase
+        .from("software_versions")
+        .delete()
+        .eq("device_id", deviceId);
+
+      if (deleteError) throw deleteError;
+
+      // Insert new software versions
+      if (softwareVersions.length > 0) {
+        const { error: versionsError } = await supabase
+          .from("software_versions")
+          .insert(
+            softwareVersions.map((sv) => ({
+              device_id: deviceId,
+              name: sv.name,
+              version: sv.version,
+            }))
+          );
+
+        if (versionsError) throw versionsError;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["devices"] });
+    },
+  });
+};
+
 export const useDeleteDevice = () => {
   const queryClient = useQueryClient();
 
