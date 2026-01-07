@@ -78,7 +78,7 @@ const DeviceCard = ({ device }: DeviceCardProps) => {
           </h3>
           <div className="bg-secondary/50 rounded-lg overflow-hidden">
             {device.software_versions.length > 0 ? (
-              <table className="w-full text-sm">
+              <table className="w-full text-sm table-fixed">
                 <tbody>
                   {device.software_versions.map((software, index) => (
                     <tr
@@ -87,10 +87,10 @@ const DeviceCard = ({ device }: DeviceCardProps) => {
                         index % 2 === 0 ? "bg-transparent" : "bg-secondary/50"
                       } hover:bg-primary/5 transition-colors`}
                     >
-                      <td className="py-2.5 px-4 text-card-foreground font-medium">
+                      <td className="py-2.5 px-4 text-card-foreground font-medium truncate">
                         {software.name}
                       </td>
-                      <td className="py-2.5 px-4 text-right">
+                      <td className="py-2.5 px-4 text-right whitespace-nowrap">
                         <span className="font-mono text-primary font-medium">
                           {software.version}
                         </span>
