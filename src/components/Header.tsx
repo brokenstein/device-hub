@@ -1,4 +1,5 @@
-import { Server, Settings } from "lucide-react";
+import { Server } from "lucide-react";
+import AddDeviceDialog from "./AddDeviceDialog";
 
 const Header = () => {
   return (
@@ -18,9 +19,7 @@ const Header = () => {
               </p>
             </div>
           </div>
-          <button className="p-2 rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground">
-            <Settings className="w-5 h-5" />
-          </button>
+          <AddDeviceDialog />
         </div>
       </div>
     </header>

@@ -1,20 +1,47 @@
-import { Device } from "@/data/devices";
-import { Monitor, Cpu } from "lucide-react";
+import { Monitor, Cpu, Trash2 } from "lucide-react";
+import { Device, useDeleteDevice } from "@/hooks/useDevices";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface DeviceCardProps {
   device: Device;
 }
 
 const DeviceCard = ({ device }: DeviceCardProps) => {
+  const deleteDevice = useDeleteDevice();
+
+  const handleDelete = async () => {
+    if (confirm(`Are you sure you want to delete ${device.name}?`)) {
+      try {
+        await deleteDevice.mutateAsync(device.id);
+        toast.success("Device deleted");
+      } catch {
+        toast.error("Failed to delete device");
+      }
+    }
+  };
+
   return (
     <div className="device-card">
       {/* Device Image */}
       <div className="relative h-48 bg-gradient-to-br from-secondary to-muted flex items-center justify-center p-6">
-        <img
-          src={device.image}
-          alt={device.name}
-          className="max-h-full max-w-full object-contain drop-shadow-2xl"
-        />
+        {device.image_url ? (
+          <img
+            src={device.image_url}
+            alt={device.name}
+            className="max-h-full max-w-full object-contain drop-shadow-2xl"
+          />
+        ) : (
+          <Monitor className="w-24 h-24 text-muted-foreground/50" />
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          onClick={handleDelete}
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
       </div>
 
       {/* Device Info */}
@@ -46,27 +73,33 @@ const DeviceCard = ({ device }: DeviceCardProps) => {
             Software Versions
           </h3>
           <div className="bg-secondary/50 rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <tbody>
-                {device.softwareVersions.map((software, index) => (
-                  <tr
-                    key={software.name}
-                    className={`${
-                      index % 2 === 0 ? "bg-transparent" : "bg-secondary/50"
-                    } hover:bg-primary/5 transition-colors`}
-                  >
-                    <td className="py-2.5 px-4 text-card-foreground font-medium">
-                      {software.name}
-                    </td>
-                    <td className="py-2.5 px-4 text-right">
-                      <span className="font-mono text-primary font-medium">
-                        {software.version}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {device.software_versions.length > 0 ? (
+              <table className="w-full text-sm">
+                <tbody>
+                  {device.software_versions.map((software, index) => (
+                    <tr
+                      key={software.id}
+                      className={`${
+                        index % 2 === 0 ? "bg-transparent" : "bg-secondary/50"
+                      } hover:bg-primary/5 transition-colors`}
+                    >
+                      <td className="py-2.5 px-4 text-card-foreground font-medium">
+                        {software.name}
+                      </td>
+                      <td className="py-2.5 px-4 text-right">
+                        <span className="font-mono text-primary font-medium">
+                          {software.version}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="p-4 text-center text-muted-foreground text-sm">
+                No software versions registered
+              </p>
+            )}
           </div>
         </div>
       </div>

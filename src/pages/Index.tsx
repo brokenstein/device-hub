@@ -1,9 +1,11 @@
 import Header from "@/components/Header";
 import DeviceCard from "@/components/DeviceCard";
-import { devices } from "@/data/devices";
-import { Layers } from "lucide-react";
+import { useDevices } from "@/hooks/useDevices";
+import { Layers, Loader2 } from "lucide-react";
 
 const Index = () => {
+  const { data: devices, isLoading, error } = useDevices();
+
   return (
     <div className="min-h-screen bg-background dark">
       <Header />
@@ -14,22 +16,43 @@ const Index = () => {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Layers className="w-5 h-5 text-primary" />
             <span className="text-sm">
-              <span className="font-semibold text-foreground">{devices.length}</span> Registered Devices
+              <span className="font-semibold text-foreground">
+                {devices?.length ?? 0}
+              </span>{" "}
+              Registered Devices
             </span>
           </div>
         </div>
 
-        {/* Devices Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {devices.map((device) => (
-            <DeviceCard key={device.id} device={device} />
-          ))}
-        </div>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        )}
 
-        {/* Footer Note */}
-        <div className="mt-12 text-center text-muted-foreground text-sm">
-          <p>Add more devices to the system by updating the devices configuration.</p>
-        </div>
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12 text-destructive">
+            Failed to load devices. Please try again.
+          </div>
+        )}
+
+        {/* Devices Grid */}
+        {devices && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {devices.map((device) => (
+              <DeviceCard key={device.id} device={device} />
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {devices?.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            No devices registered yet. Click "Add Device" to get started.
+          </div>
+        )}
       </main>
     </div>
   );
