@@ -1,0 +1,239 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Plus, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useAddDevice } from "@/hooks/useDevices";
+import { toast } from "sonner";
+
+const deviceSchema = z.object({
+  name: z.string().min(1, "Device name is required").max(100),
+  model: z.string().min(1, "Model is required").max(100),
+  os: z.string().min(1, "OS is required").max(100),
+  image_url: z.string().optional(),
+});
+
+type DeviceFormData = z.infer<typeof deviceSchema>;
+
+interface SoftwareVersionInput {
+  name: string;
+  version: string;
+}
+
+const AddDeviceDialog = () => {
+  const [open, setOpen] = useState(false);
+  const [softwareVersions, setSoftwareVersions] = useState<SoftwareVersionInput[]>([
+    { name: "", version: "" },
+  ]);
+
+  const addDevice = useAddDevice();
+
+  const form = useForm<DeviceFormData>({
+    resolver: zodResolver(deviceSchema),
+    defaultValues: {
+      name: "",
+      model: "",
+      os: "",
+      image_url: "",
+    },
+  });
+
+  const addSoftwareVersion = () => {
+    setSoftwareVersions([...softwareVersions, { name: "", version: "" }]);
+  };
+
+  const removeSoftwareVersion = (index: number) => {
+    setSoftwareVersions(softwareVersions.filter((_, i) => i !== index));
+  };
+
+  const updateSoftwareVersion = (
+    index: number,
+    field: "name" | "version",
+    value: string
+  ) => {
+    const updated = [...softwareVersions];
+    updated[index][field] = value;
+    setSoftwareVersions(updated);
+  };
+
+  const onSubmit = async (data: DeviceFormData) => {
+    const validVersions = softwareVersions.filter(
+      (sv) => sv.name.trim() && sv.version.trim()
+    );
+
+    try {
+      await addDevice.mutateAsync({
+        device: {
+          name: data.name,
+          model: data.model,
+          os: data.os,
+          image_url: data.image_url || undefined,
+        },
+        softwareVersions: validVersions,
+      });
+      toast.success("Device added successfully");
+      form.reset();
+      setSoftwareVersions([{ name: "", version: "" }]);
+      setOpen(false);
+    } catch (error) {
+      toast.error("Failed to add device");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="gap-2">
+          <Plus className="w-4 h-4" />
+          Add Device
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add New Device</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Device Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Giada DN74" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Model</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. DN74" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="os"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Operating System</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Android 11" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image URL (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. /device-image.png" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium">Software Versions</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addSoftwareVersion}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Version
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {softwareVersions.map((sv, index) => (
+                  <div key={index} className="flex gap-3 items-start">
+                    <Input
+                      placeholder="Software name"
+                      value={sv.name}
+                      onChange={(e) =>
+                        updateSoftwareVersion(index, "name", e.target.value)
+                      }
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="Version"
+                      value={sv.version}
+                      onChange={(e) =>
+                        updateSoftwareVersion(index, "version", e.target.value)
+                      }
+                      className="w-32"
+                    />
+                    {softwareVersions.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeSoftwareVersion(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={addDevice.isPending}>
+                {addDevice.isPending ? "Adding..." : "Add Device"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default AddDeviceDialog;
