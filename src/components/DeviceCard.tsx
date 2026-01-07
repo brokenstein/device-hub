@@ -2,6 +2,7 @@ import { Monitor, Cpu, Trash2 } from "lucide-react";
 import { Device, useDeleteDevice } from "@/hooks/useDevices";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import EditDeviceDialog from "./EditDeviceDialog";
 
 interface DeviceCardProps {
   device: Device;
@@ -34,14 +35,17 @@ const DeviceCard = ({ device }: DeviceCardProps) => {
         ) : (
           <Monitor className="w-24 h-24 text-muted-foreground/50" />
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-          onClick={handleDelete}
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        <div className="absolute top-2 right-2 flex gap-1">
+          <EditDeviceDialog device={device} />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            onClick={handleDelete}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Device Info */}
