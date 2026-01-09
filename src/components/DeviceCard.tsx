@@ -1,4 +1,4 @@
-import { Monitor, Cpu, Trash2 } from "lucide-react";
+import { Monitor, Cpu, Trash2, Download } from "lucide-react";
 import { Device, useDeleteDevice } from "@/hooks/useDevices";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -66,9 +66,19 @@ const DeviceCard = ({ device }: DeviceCardProps) => {
           </div>
         </div>
 
-        {/* OS Badge */}
-        <div className="mb-4">
+        {/* OS Badge and Download */}
+        <div className="mb-4 flex items-center justify-between">
           <span className="version-badge">{device.os}</span>
+          {device.download_url && (
+            <a
+              href={device.download_url}
+              download
+              className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download</span>
+            </a>
+          )}
         </div>
 
         {/* Software Versions Table */}

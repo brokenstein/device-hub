@@ -28,6 +28,7 @@ const deviceSchema = z.object({
   model: z.string().min(1, "Model is required").max(100),
   os: z.string().min(1, "OS is required").max(100),
   image_url: z.string().optional(),
+  download_url: z.string().optional(),
 });
 
 type DeviceFormData = z.infer<typeof deviceSchema>;
@@ -52,6 +53,7 @@ const AddDeviceDialog = () => {
       model: "",
       os: "",
       image_url: "",
+      download_url: "",
     },
   });
 
@@ -85,6 +87,7 @@ const AddDeviceDialog = () => {
           model: data.model,
           os: data.os,
           image_url: data.image_url || undefined,
+          download_url: data.download_url || undefined,
         },
         softwareVersions: validVersions,
       });
@@ -162,6 +165,20 @@ const AddDeviceDialog = () => {
                   <FormLabel>Image URL (optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. /device-image.png" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="download_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Download URL (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. /autorun.zip" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
