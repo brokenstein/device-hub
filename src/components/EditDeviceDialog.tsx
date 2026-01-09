@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Upload, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Device, useUpdateDevice } from "@/hooks/useDevices";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import { toast } from "sonner";
 
 const deviceSchema = z.object({
@@ -46,8 +47,10 @@ interface EditDeviceDialogProps {
 const EditDeviceDialog = ({ device }: EditDeviceDialogProps) => {
   const [open, setOpen] = useState(false);
   const [softwareVersions, setSoftwareVersions] = useState<SoftwareVersionInput[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateDevice = useUpdateDevice();
+  const { uploadFile, isUploading } = useFileUpload();
 
   const form = useForm<DeviceFormData>({
     resolver: zodResolver(deviceSchema),
@@ -97,6 +100,20 @@ const EditDeviceDialog = ({ device }: EditDeviceDialogProps) => {
     const updated = [...softwareVersions];
     updated[index][field] = value;
     setSoftwareVersions(updated);
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileName = `${device.id}/${file.name}`;
+      const publicUrl = await uploadFile(file, "device-downloads", fileName);
+      form.setValue("download_url", publicUrl);
+      toast.success("File uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to upload file");
+    }
   };
 
   const onSubmit = async (data: DeviceFormData) => {
@@ -202,10 +219,32 @@ const EditDeviceDialog = ({ device }: EditDeviceDialogProps) => {
               name="download_url"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Download URL (optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. /autorun.zip" {...field} />
-                  </FormControl>
+                  <FormLabel>Download File</FormLabel>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input placeholder="e.g. /autorun.zip or upload a file" {...field} />
+                    </FormControl>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      accept=".zip,.brs,.bsfw"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Upload className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
