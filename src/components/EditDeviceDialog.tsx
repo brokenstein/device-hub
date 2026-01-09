@@ -28,6 +28,7 @@ const deviceSchema = z.object({
   model: z.string().min(1, "Model is required").max(100),
   os: z.string().min(1, "OS is required").max(100),
   image_url: z.string().optional(),
+  download_url: z.string().optional(),
 });
 
 type DeviceFormData = z.infer<typeof deviceSchema>;
@@ -55,6 +56,7 @@ const EditDeviceDialog = ({ device }: EditDeviceDialogProps) => {
       model: device.model,
       os: device.os,
       image_url: device.image_url || "",
+      download_url: device.download_url || "",
     },
   });
 
@@ -65,6 +67,7 @@ const EditDeviceDialog = ({ device }: EditDeviceDialogProps) => {
         model: device.model,
         os: device.os,
         image_url: device.image_url || "",
+        download_url: device.download_url || "",
       });
       setSoftwareVersions(
         device.software_versions.length > 0
@@ -109,6 +112,7 @@ const EditDeviceDialog = ({ device }: EditDeviceDialogProps) => {
           model: data.model,
           os: data.os,
           image_url: data.image_url || undefined,
+          download_url: data.download_url || undefined,
         },
         softwareVersions: validVersions,
       });
@@ -187,6 +191,20 @@ const EditDeviceDialog = ({ device }: EditDeviceDialogProps) => {
                   <FormLabel>Image URL (optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. /device-image.png" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="download_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Download URL (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. /autorun.zip" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

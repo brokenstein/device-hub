@@ -13,6 +13,7 @@ export interface Device {
   model: string;
   os: string;
   image_url: string | null;
+  download_url: string | null;
   software_versions: SoftwareVersion[];
 }
 
@@ -49,7 +50,7 @@ export const useAddDevice = () => {
       device,
       softwareVersions,
     }: {
-      device: { name: string; model: string; os: string; image_url?: string };
+      device: { name: string; model: string; os: string; image_url?: string; download_url?: string };
       softwareVersions: { name: string; version: string }[];
     }) => {
       const { data: newDevice, error: deviceError } = await supabase
@@ -92,7 +93,7 @@ export const useUpdateDevice = () => {
       softwareVersions,
     }: {
       deviceId: string;
-      device: { name: string; model: string; os: string; image_url?: string };
+      device: { name: string; model: string; os: string; image_url?: string; download_url?: string };
       softwareVersions: { id?: string; name: string; version: string }[];
     }) => {
       // Update device info
