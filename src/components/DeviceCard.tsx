@@ -1,5 +1,6 @@
 import { Monitor, Cpu, Trash2, Download } from "lucide-react";
 import { Device, useDeleteDevice } from "@/hooks/useDevices";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import EditDeviceDialog from "./EditDeviceDialog";
@@ -10,6 +11,7 @@ interface DeviceCardProps {
 
 const DeviceCard = ({ device }: DeviceCardProps) => {
   const deleteDevice = useDeleteDevice();
+  const { isAdmin } = useAuth();
 
   const handleDelete = async () => {
     if (confirm(`Are you sure you want to delete ${device.name}?`)) {
@@ -35,20 +37,20 @@ const DeviceCard = ({ device }: DeviceCardProps) => {
         ) : (
           <Monitor className="w-24 h-24 text-muted-foreground/50" />
         )}
-        <div className="absolute top-2 right-2 flex gap-1">
-          <EditDeviceDialog device={device} />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-            onClick={handleDelete}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
+        {isAdmin && (
+          <div className="absolute top-2 right-2 flex gap-1">
+            <EditDeviceDialog device={device} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              onClick={handleDelete}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
-
-      {/* Device Info */}
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
