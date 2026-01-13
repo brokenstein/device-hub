@@ -72,7 +72,7 @@ const Header = () => {
                   </div>
                 ) : (
                   <Link to="/auth">
-                    <Button variant="outline" size="sm">
+                    <Button variant="brightsign" size="sm">
                       <LogIn className="w-4 h-4 mr-1" />
                       Sign In
                     </Button>

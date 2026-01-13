@@ -53,6 +53,10 @@ export default {
         },
         "device-glow": "hsl(var(--device-glow))",
         "version-highlight": "hsl(var(--version-highlight))",
+        "brightsign-purple": {
+          DEFAULT: "hsl(var(--brightsign-purple))",
+          foreground: "hsl(var(--brightsign-purple-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
